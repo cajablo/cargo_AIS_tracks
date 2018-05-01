@@ -1,0 +1,81 @@
+---
+title: "SBARC AIS Cargo Summaries"
+output: html_notebook
+---
+
+Some summary data for cargo ships passing through the Santa Barbara Channel from January - March 2018. A single transit or trip consists of the vessel travelling the length of the channel in a designated shipping lane 95% of the time. 
+
+```{r warnings=FALSE}
+#load libraries
+library(pacman)
+p_load(dplyr)
+p_load(ggplot2)
+p_load(sp)
+p_load(rgdal)
+p_load(maps)
+p_load(maptools)
+p_load(rgeos)
+p_load(lubridate)
+p_load(cowplot)
+library(knitr)
+library(kableExtra)
+```
+
+###Number of Individual Ships
+```{r}
+cargo_tanker_summary <- readRDS("cargo_tankers_lane_transits_summary.RDS")
+
+cargo_tanker_summary$type_general <- "Cargo"
+cargo_tanker_summary$type_general[cargo_tanker_summary$ship_type>=80]<- "Tanker"
+
+cargo_tankers_num <- cargo_tanker_summary%>%
+  ungroup()%>%
+  group_by(type_general)%>%
+  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)), avg_time=mean(time_diff), max_time=max(time_diff), min_time=min(time_diff))
+
+kable(cargo_tankers_num, "html") %>%
+  kable_styling(full_width = F)
+
+```
+
+##Number of monthly cargo transits
+```{r}
+#get just the time
+cargo_tanker_summary$min_hour <- as.POSIXct(format(as.POSIXlt(cargo_tanker_summary$min_time),format = '%T'), format="%H:%M:%S")
+
+#create day/night column
+cargo_tanker_summary$dayNight <- ifelse(cargo_tanker_summary$min_hour > as.POSIXct('2018-05-01 04:00:00 PDT') & cargo_tanker_summary$min_hour < as.POSIXct('2018-05-01 16:00:00 PDT'), 'Day', 'Night')
+cargo_tanker_summary$month <- month(cargo_tanker_summary$max_time, label = TRUE, abbr=FALSE) 
+
+cargo_only_summary <- subset(cargo_tanker_summary, type_general=="Cargo")
+
+cargo_only_monthly <- cargo_only_summary %>%
+  ungroup()%>%
+  group_by(month)%>%
+  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)))
+
+kable(cargo_only_monthly, "html") %>%
+  kable_styling(full_width = F)
+```
+
+
+
+###Number of cargo transits
+```{r}
+
+ggplot(data=cargo_only_summary ) +
+  geom_bar(mapping=aes(x=month, fill=dayNight), position="dodge")+
+  xlab("")+
+  ylab("Number of Trips") +
+  guides(fill=guide_legend(title="Trip time of day"))
+  
+
+```
+
+##List of Unique Cargo Vessels
+```{r}
+
+```
+
+
+
