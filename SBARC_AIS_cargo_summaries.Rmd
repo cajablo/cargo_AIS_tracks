@@ -5,7 +5,7 @@ output: html_notebook
 
 Some summary data for cargo ships passing through the Santa Barbara Channel from January - March 2018. A single transit or trip consists of the vessel travelling the length of the channel in a designated shipping lane 95% of the time. 
 
-```{r warnings=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 #load libraries
 library(pacman)
 p_load(dplyr)
@@ -19,6 +19,8 @@ p_load(lubridate)
 p_load(cowplot)
 library(knitr)
 library(kableExtra)
+
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ###Number of Individual Ships
@@ -39,12 +41,12 @@ kable(cargo_tankers_num, "html") %>%
 ```
 
 ##Number of monthly cargo transits
-```{r}
+```{r echo=FALSE, message=FALSE}
 #get just the time
 cargo_tanker_summary$min_hour <- as.POSIXct(format(as.POSIXlt(cargo_tanker_summary$min_time),format = '%T'), format="%H:%M:%S")
 
 #create day/night column
-cargo_tanker_summary$dayNight <- ifelse(cargo_tanker_summary$min_hour > as.POSIXct('2018-05-01 04:00:00 PDT') & cargo_tanker_summary$min_hour < as.POSIXct('2018-05-01 16:00:00 PDT'), 'Day', 'Night')
+cargo_tanker_summary$dayNight <- ifelse(cargo_tanker_summary$min_hour > as.POSIXct('2018-05-02 04:00:00 PDT') & cargo_tanker_summary$min_hour < as.POSIXct('2018-05-02 16:00:00 PDT'), 'Day', 'Night')
 cargo_tanker_summary$month <- month(cargo_tanker_summary$max_time, label = TRUE, abbr=FALSE) 
 
 cargo_only_summary <- subset(cargo_tanker_summary, type_general=="Cargo")
@@ -61,7 +63,7 @@ kable(cargo_only_monthly, "html") %>%
 
 
 ###Number of cargo transits
-```{r}
+```{r echo=FALSE, message=FALSE}
 
 ggplot(data=cargo_only_summary ) +
   geom_bar(mapping=aes(x=month, fill=dayNight), position="dodge")+
@@ -72,10 +74,64 @@ ggplot(data=cargo_only_summary ) +
 
 ```
 
-##List of Unique Cargo Vessels
-```{r}
+##Top 8 Shipping Companies
+```{r }
+
+shipping_company_summary <- cargo_tanker_summary%>%
+  ungroup()%>%
+  filter(type_general=="Cargo")%>%
+  group_by(company)%>%
+  summarize(num_vessels=length(unique(mmsi)), num_transits=length(unique(mmsi_trip)))%>%
+  ungroup()%>%
+  mutate(fraction_vessels=(num_vessels/sum(num_vessels)*100), fraction_transits=(num_transits/sum(num_transits)*100))%>%
+  arrange(desc(fraction_vessels))%>%
+  mutate(num=seq(1:n()))%>%
+  mutate(top_8=as.character(company))
+
+
+shipping_company_summary$top_8[shipping_company_summary$num > 8] <- "Other"
+
+
+shipping_company_top_8 <- shipping_company_summary %>%
+  top_n(8, fraction_transits)%>%
+  select("Company"=company, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)
+
+ kable(shipping_company_top_8, "html") %>%
+   kable_styling(full_width = F)
+```
+
+
+
+```{r echo=FALSE, message=FALSE}
+
+num_transits <- shipping_company_summary %>%
+  group_by(top_8)%>%
+  summarize(ttl_transits=sum(num_transits))%>%
+  mutate(perc_tranist=ttl_transits/sum(ttl_transits))
+
+bp <- ggplot(num_transits, aes(x="", y=ttl_transits, fill=top_8))+geom_bar(width=1, stat="identity")
+
+#pie <- bp +coord_polar("y", start=0)
+pie <- bp +coord_polar(theta="y")
+pie +scale_fill_brewer(palette="Reds")+
+coord_polar(theta = "y")+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("Number of Transits by Shipping Company")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
 
 ```
 
 
+
+```{r}
+
+```
 

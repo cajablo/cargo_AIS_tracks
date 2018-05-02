@@ -57,13 +57,21 @@ mmsi_trip_remove <- c("211327410-1", "211327410-3", "356872000-5", "355717000-1"
 
 mmsi_trip_remove_df <- data.frame(mmsi_trip_remove, stringsAsFactors=FALSE)
 
+#dataframe of shipping companies
+shipping_companies <- read.csv("cargo_vessels_shipping_company.csv")
+shipping_companies_edit <- shipping_companies %>%
+  mutate(mmsi=as.factor(mmsi))%>%
+  select(mmsi, company)
+  
+
 #create summary table for each trip
 cargo_tankers_lane_transits_summary <- cargo_tankers_lane_transits %>%
   ungroup()%>%
   filter(speed < 30)%>%
   anti_join(mmsi_trip_remove_df, by=c("mmsi_trip"="mmsi_trip_remove"))%>%
+  left_join(shipping_companies_edit, by="mmsi")%>%
   #filter((heading < 140 & heading > 75) | (heading > 250 & heading < 320))%>%
-  group_by(mmsi, name, ship_type, mmsi_trip) %>%
+  group_by(mmsi, name, ship_type, mmsi_trip, company) %>%
   #get max/mins for various columns
   summarize(
     min_time = min(datetime_PST),

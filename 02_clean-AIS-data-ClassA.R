@@ -13,7 +13,7 @@ p_load(maptools)
 p_load(rgeos)
 
 #load combined raw SBARC data
-load("01_raw_SBARC_AIS_201802_03-combined.RData")
+readRDS("01_raw_SBARC_AIS_data_201804-combined.Rds")
 
 ##Clean Jan 2018 data
 # 1. remove extra characters from the date column (which is based on the file name) to just get the date

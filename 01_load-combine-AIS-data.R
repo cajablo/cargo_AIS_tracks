@@ -3,7 +3,7 @@
 
 # get a list of all of the files in the SBARC data
 AIS_files <-
-  list.files(path = "./AIS_data_201802-03",
+  list.files(path = "./AIS_data_201804",
              pattern = "\\.txt$",
              full.names = TRUE)
 
@@ -29,7 +29,7 @@ for (i in 1:length(AIS_files2)) {
 data_rbind <- do.call("rbind", AIS_files2)
 
 #save this formatted, binded dataframe as a R data file so we don't have to run this everytime
-save(data_rbind, file="01_raw_SBARC_AIS_201802_03-combined.RData")
+saveRDS(data_rbind, file="01_raw_SBARC_AIS_data_201804-combined.Rds")
 
 
 
