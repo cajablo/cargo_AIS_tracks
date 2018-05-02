@@ -4,7 +4,7 @@
 #and visualizing such data
 
 #load libraries
-library(pacman)
+library(pacman) #I heard about this package at an R meeting - essentially if you load this package and then do p_load for the rest of the libraries then if it's not installed it will automatically install it for you, otherwise it just loads it
 p_load(dplyr)
 p_load(ggplot2)
 p_load(sp)
@@ -52,7 +52,7 @@ cargo_tankers_lane_transits <- cargo_tankers_channel %>%
   mutate(mmsi_trip = paste0(mmsi, "-", trip)) %>% #creates a unique transit identifier based on the mmsi and trip number, essentially MMSI-TRIP
   mutate(heading_diff=(c(0,diff(heading))))
 
-#create a dataframe with mmsi trips we don't want
+#create a dataframe with mmsi trips we don't want (starting from scratch you'd have to create the summary table first, plot the lines and figure out which ones you don't want and then come back here and remove them) - ideally I will figure out a way so that we don't have to do this based but I'm obviously not there yet
 mmsi_trip_remove <- c("211327410-1", "211327410-3", "356872000-5", "355717000-1", "636014557-6", "352776000-2")
 
 mmsi_trip_remove_df <- data.frame(mmsi_trip_remove, stringsAsFactors=FALSE)
@@ -95,7 +95,7 @@ cargo_tankers_lane_transits_summary <- cargo_tankers_lane_transits %>%
 
 saveRDS(cargo_tankers_lane_transits_summary, file="cargo_tankers_lane_transits_summary.RDS")
 
-#get these mmsis from cargo tanker transits
+#get these mmsis from cargo tanker transits, and filter AIS point to only these tranists (from the summary table)
 cargo_tanker_refined_mmsi <- unique(cargo_tankers_lane_transits_summary$mmsi_trip)
 
 cargo_tanker_lane_transits_refined <- subset(cargo_tankers_lane_transits, mmsi_trip %in% cargo_tanker_refined_mmsi)
@@ -109,6 +109,7 @@ colSums(is.na(cargo_tanker_lane_transits_refined_30))
 #use function (from Function script) to create polylines of each transit
 test <- transit_map(data = cargo_tanker_lane_transits_refined_30)
 
+#plot the polylines
 plot(test)
 
 cargo_tanker_transit_lines <- sp::merge(test, cargo_tankers_lane_transits_summary, by.x = "mmsi_trip", by.y="mmsi_trip")
@@ -120,7 +121,8 @@ writeOGR(cargo_tanker_transit_lines, dsn="." ,layer="cargo_tanker_transit_lines_
 Mar_cargo_transits <- cargo_tankers_lane_transits_summary %>%
   filter(max_time >="2018-03-01 -00:00:00 PST"  & prop_AIS_in_lane > .9)
 
-#explore cargo transits errant points
+#explore cargo transits errant points----
+#this looks at individual trips to see where the points are in that trip - I've been saving it and then exploring the file in QGIS to get a better sense of what's going on with some of the weird errant points in a vessel's trip
 Resolute_bay_1 <- cargo_tanker_lane_transits_refined %>%
   filter(mmsi_trip=="232005179-1")
 coordinates(Resolute_bay_1) <- ~lon + lat
