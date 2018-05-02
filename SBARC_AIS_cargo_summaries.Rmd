@@ -211,13 +211,13 @@ xx_group_8<- xx_group %>%
 
 
 
-bp1 <- ggplot(xx_group_1, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp1 <- ggplot(xx_group_1, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("One Line")+
+ggtitle("One Line (146 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -228,13 +228,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp2 <- ggplot(xx_group_2, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp2 <- ggplot(xx_group_2, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("CMA-CGL")+
+ggtitle("CMA-CGL (67 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -245,13 +245,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp3 <- ggplot(xx_group_3, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp3 <- ggplot(xx_group_3, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Maersk")+
+ggtitle("Maersk (47 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -262,13 +262,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp4 <- ggplot(xx_group_4, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp4 <- ggplot(xx_group_4, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("MSC")+
+ggtitle("MSC (28 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -279,13 +279,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp5 <- ggplot(xx_group_5, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp5 <- ggplot(xx_group_5, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Evergreen")+
+ggtitle("Evergreen (24 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -296,13 +296,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp6 <- ggplot(xx_group_6, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp6 <- ggplot(xx_group_6, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Hyundai")+
+ggtitle("Hyundai (26 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -313,13 +313,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp7 <- ggplot(xx_group_7, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp7 <- ggplot(xx_group_7, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Cosco")+
+ggtitle("Cosco (26 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -330,13 +330,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-bp8 <- ggplot(xx_group_8, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+bp8 <- ggplot(xx_group_8, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
   coord_polar(theta = "y")+
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("CSL")+
+ggtitle("CSL (22 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
