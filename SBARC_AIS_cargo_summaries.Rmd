@@ -17,6 +17,7 @@ p_load(maptools)
 p_load(rgeos)
 p_load(lubridate)
 p_load(cowplot)
+p_load(gridExtra)
 library(knitr)
 library(kableExtra)
 
@@ -75,7 +76,7 @@ ggplot(data=cargo_only_summary ) +
 ```
 
 ##Top 8 Shipping Companies
-```{r }
+```{r echo=FALSE, message=FALSE}
 
 shipping_company_summary <- cargo_tanker_summary%>%
   ungroup()%>%
@@ -92,6 +93,16 @@ shipping_company_summary <- cargo_tanker_summary%>%
 shipping_company_summary$top_8[shipping_company_summary$num > 8] <- "Other"
 
 
+#create df with top 8 + other label matchign with mmsi
+top_8_categories <- cargo_tanker_summary %>%
+  ungroup()%>%
+  filter(ship_type< 80)%>%
+  group_by(mmsi, company)%>%
+  summarize(num_transits=length(unique(mmsi_trip)))%>%
+  left_join(shipping_company_summary, by="company")%>%
+  select(mmsi,top_8)
+
+#create a table of the top 8 companies
 shipping_company_top_8 <- shipping_company_summary %>%
   top_n(8, fraction_transits)%>%
   select("Company"=company, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)
@@ -109,11 +120,12 @@ num_transits <- shipping_company_summary %>%
   summarize(ttl_transits=sum(num_transits))%>%
   mutate(perc_tranist=ttl_transits/sum(ttl_transits))
 
-bp <- ggplot(num_transits, aes(x="", y=ttl_transits, fill=top_8))+geom_bar(width=1, stat="identity")
+bp <- ggplot(num_transits, aes(x=2, y=ttl_transits, fill=top_8))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5)
 
 #pie <- bp +coord_polar("y", start=0)
 pie <- bp +coord_polar(theta="y")
-pie +scale_fill_brewer(palette="Reds")+
+pie +scale_fill_brewer(palette="Spectral")+
 coord_polar(theta = "y")+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
@@ -131,7 +143,218 @@ panel.border=element_blank())
 
 
 
-```{r}
+###Plot of All AIS points > 16 knots and < 16 knots for each shipping company
+Need to figure this out
+
+```{r echo=FALSE, message=FALSE}
+#This is an absolute mess, I need to figure it out how to put multiple donut plots in a frame - try facet and grid.arrange???
+
+#get individual AIS points
+cargo_tanker_lane_transits_refined_30 <- readRDS("cargo_tanker_lane_transits_refined_30.RDS")
+xx <- cargo_tanker_lane_transits_refined_30 %>%
+  filter(ship_type < 80)%>%
+  left_join(top_8_categories, by="mmsi") 
+
+xx$speed_category <- "Greater than 16 knots"
+xx$speed_category[xx$speed <= 16] <- "Less than 16 knots"
+
+xx_group <- xx %>%
+  group_by(top_8, speed_category)%>%
+  summarize(number_points=n())%>%
+  filter(top_8 != "Other")
+
+#should do this in a loop
+xx_group_1<- xx_group %>%
+  filter(top_8=="One Line")
+
+xx_group_2<- xx_group %>%
+  filter(top_8=="CMA-CGL")
+
+xx_group_3<- xx_group %>%
+  filter(top_8=="Maersk")
+
+xx_group_4<- xx_group %>%
+  filter(top_8=="MSC")
+
+xx_group_5<- xx_group %>%
+  filter(top_8=="Evergreen")
+
+xx_group_6<- xx_group %>%
+  filter(top_8=="Hyundai")
+
+xx_group_7<- xx_group %>%
+  filter(top_8=="COSCO")
+
+xx_group_8<- xx_group %>%
+  filter(top_8=="CSL")
+
+test<-ggplot(xx, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("One Line")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+
+
+bp1 <- ggplot(xx_group_1, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("One Line")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp2 <- ggplot(xx_group_2, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("CMA-CGL")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp3 <- ggplot(xx_group_3, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("Maersk")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp4 <- ggplot(xx_group_4, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("MSC")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp5 <- ggplot(xx_group_5, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("Evergreen")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp6 <- ggplot(xx_group_6, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("Hyundai")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp7 <- ggplot(xx_group_7, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("Cosco")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+#legend.position = "bottom",
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+bp8 <- ggplot(xx_group_8, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+  coord_polar(theta = "y")+
+  scale_fill_manual(values = c("red", "blue"))+
+labs(x=NULL, y=NULL)+
+labs(fill="") +
+ggtitle("CSL")+
+theme_bw()+
+theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+legend.text=element_text(size=10),
+axis.ticks=element_blank(),
+axis.text=element_blank(),
+axis.title=element_blank(),
+panel.grid=element_blank(),
+panel.border=element_blank())
+
+grid.arrange(bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, nrow=4)
+
+grid.arrange(
+  bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8,
+  nrow = 4,
+  top = "Title of the page",
+  bottom = textGrob(
+    "this footnote is right-justified",
+    gp = gpar(fontface = 3, fontsize = 9),
+    hjust = 1,
+    x = 1
+  )
+)
 
 ```
 

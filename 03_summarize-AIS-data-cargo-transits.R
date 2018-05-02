@@ -109,6 +109,8 @@ cargo_tanker_refined_mmsi <- unique(cargo_tankers_lane_transits_summary$mmsi_tri
 cargo_tanker_lane_transits_refined <- subset(cargo_tankers_lane_transits, mmsi_trip %in% cargo_tanker_refined_mmsi)
 cargo_tanker_lane_transits_refined_30 <- subset(cargo_tanker_lane_transits_refined, speed <= 30)
 
+saveRDS(cargo_tanker_lane_transits_refined_30, file="cargo_tanker_lane_transits_refined_30.RDS")
+
 #create polylines based on individual transits
 #make sure no NAs in dataframe
 colSums(is.na(cargo_tanker_lane_transits_refined_30))
