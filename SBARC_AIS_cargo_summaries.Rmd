@@ -1,6 +1,8 @@
 ---
 title: "SBARC AIS Cargo Summaries"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 Some summary data for cargo ships passing through the Santa Barbara Channel from January - March 2018. A single transit or trip consists of the vessel travelling the length of the channel in a designated shipping lane 95% of the time. 
@@ -151,6 +153,8 @@ Need to figure this out
 
 #get individual AIS points
 cargo_tanker_lane_transits_refined_30 <- readRDS("cargo_tanker_lane_transits_refined_30.RDS")
+cargo_tanker_lane_transits_refined_30$mmsi <- as.character(cargo_tanker_lane_transits_refined_30$mmsi)
+
 xx <- cargo_tanker_lane_transits_refined_30 %>%
   filter(ship_type < 80)%>%
   left_join(top_8_categories, by="mmsi") 
@@ -186,24 +190,24 @@ xx_group_7<- xx_group %>%
   filter(top_8=="COSCO")
 
 xx_group_8<- xx_group %>%
-  filter(top_8=="CSL")
+  filter(top_8=="CSCL")
 
-test<-ggplot(xx, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
-  xlim(0.5, 2.5) +coord_polar(theta="y")+ 
-  coord_polar(theta = "y")+
-  scale_fill_manual(values = c("red", "blue"))+
-labs(x=NULL, y=NULL)+
-labs(fill="") +
-ggtitle("One Line")+
-theme_bw()+
-theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
-legend.text=element_text(size=10),
-#legend.position = "bottom",
-axis.ticks=element_blank(),
-axis.text=element_blank(),
-axis.title=element_blank(),
-panel.grid=element_blank(),
-panel.border=element_blank())
+# test<-ggplot(xx, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
+#   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
+#   coord_polar(theta = "y")+
+#   scale_fill_manual(values = c("red", "blue"))+
+# labs(x=NULL, y=NULL)+
+# labs(fill="") +
+# ggtitle("One Line")+
+# theme_bw()+
+# theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
+# legend.text=element_text(size=10),
+# #legend.position = "bottom",
+# axis.ticks=element_blank(),
+# axis.text=element_blank(),
+# axis.title=element_blank(),
+# panel.grid=element_blank(),
+# panel.border=element_blank())
 
 
 
@@ -336,25 +340,36 @@ ggtitle("CSL")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
+#legend.position = "bottom",
 axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
-grid.arrange(bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, nrow=4)
+bp1
+bp2
+bp3
+bp4
+bp5
+bp6
+bp7
+bp8
 
-grid.arrange(
-  bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8,
-  nrow = 4,
-  top = "Title of the page",
-  bottom = textGrob(
-    "this footnote is right-justified",
-    gp = gpar(fontface = 3, fontsize = 9),
-    hjust = 1,
-    x = 1
-  )
-)
+
+#grid.arrange(bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, nrow=4)
+# 
+# #grid.arrange(
+#   bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8,
+#   nrow = 4,
+#   top = "Title of the page",
+#   bottom = textGrob(
+#     "this footnote is right-justified",
+#     gp = gpar(fontface = 3, fontsize = 9),
+#     hjust = 1,
+#     x = 1
+#   )
+# )
 
 ```
 
