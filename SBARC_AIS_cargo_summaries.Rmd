@@ -20,6 +20,7 @@ p_load(rgeos)
 p_load(lubridate)
 p_load(cowplot)
 p_load(gridExtra)
+p_load(RColorBrewer)
 library(knitr)
 library(kableExtra)
 
@@ -36,7 +37,8 @@ cargo_tanker_summary$type_general[cargo_tanker_summary$ship_type>=80]<- "Tanker"
 cargo_tankers_num <- cargo_tanker_summary%>%
   ungroup()%>%
   group_by(type_general)%>%
-  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)), avg_time=mean(time_diff), max_time=max(time_diff), min_time=min(time_diff))
+  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)), avg_time=mean(time_diff), max_time=max(time_diff), min_time=min(time_diff))%>%
+  select("Vessel type"= type_general, "Number of Vessels"=number_vessels, "Number of Transits"=num_trips, "Average Transit Time (hrs)"=avg_time, "Max Transit Time (hrs)"=max_time, "Min Transit Time"=min_time)
 
 kable(cargo_tankers_num, "html") %>%
   kable_styling(full_width = F)
@@ -49,7 +51,7 @@ kable(cargo_tankers_num, "html") %>%
 cargo_tanker_summary$min_hour <- as.POSIXct(format(as.POSIXlt(cargo_tanker_summary$min_time),format = '%T'), format="%H:%M:%S")
 
 #create day/night column
-cargo_tanker_summary$dayNight <- ifelse(cargo_tanker_summary$min_hour > as.POSIXct('2018-05-02 04:00:00 PDT') & cargo_tanker_summary$min_hour < as.POSIXct('2018-05-02 16:00:00 PDT'), 'Day', 'Night')
+cargo_tanker_summary$dayNight <- ifelse(cargo_tanker_summary$min_hour > as.POSIXct('2018-05-03 04:00:00 PDT') & cargo_tanker_summary$min_hour < as.POSIXct('2018-05-03 16:00:00 PDT'), 'Day', 'Night')
 cargo_tanker_summary$month <- month(cargo_tanker_summary$max_time, label = TRUE, abbr=FALSE) 
 
 cargo_only_summary <- subset(cargo_tanker_summary, type_general=="Cargo")
@@ -57,7 +59,8 @@ cargo_only_summary <- subset(cargo_tanker_summary, type_general=="Cargo")
 cargo_only_monthly <- cargo_only_summary %>%
   ungroup()%>%
   group_by(month)%>%
-  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)))
+  summarize(number_vessels=length(unique(name)), num_trips=length(unique(mmsi_trip)))%>%
+  select("Month"=month, "Number of Vessels"= number_vessels, "Number of Transits"=num_trips)
 
 kable(cargo_only_monthly, "html") %>%
   kable_styling(full_width = F)
@@ -72,7 +75,7 @@ ggplot(data=cargo_only_summary ) +
   geom_bar(mapping=aes(x=month, fill=dayNight), position="dodge")+
   xlab("")+
   ylab("Number of Trips") +
-  guides(fill=guide_legend(title="Trip time of day"))
+  guides(fill=guide_legend(title="Trip time of day"))+scale_fill_manual(values=c("#ABDDA4", "#3288BD"))
   
 
 ```
@@ -141,12 +144,13 @@ axis.title=element_blank(),
 panel.grid=element_blank(),
 panel.border=element_blank())
 
+
 ```
 
 
 
 ###Plot of All AIS points > 16 knots and < 16 knots for each shipping company
-Need to figure this out
+
 
 ```{r echo=FALSE, message=FALSE}
 #This is an absolute mess, I need to figure it out how to put multiple donut plots in a frame - try facet and grid.arrange???
@@ -192,24 +196,7 @@ xx_group_7<- xx_group %>%
 xx_group_8<- xx_group %>%
   filter(top_8=="CSCL")
 
-# test<-ggplot(xx, aes(x=2, y=top_8, fill=speed_category))+geom_bar(width=1, stat="identity")+
-#   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
-#   coord_polar(theta = "y")+
-#   scale_fill_manual(values = c("red", "blue"))+
-# labs(x=NULL, y=NULL)+
-# labs(fill="") +
-# ggtitle("One Line")+
-# theme_bw()+
-# theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
-# legend.text=element_text(size=10),
-# #legend.position = "bottom",
-# axis.ticks=element_blank(),
-# axis.text=element_blank(),
-# axis.title=element_blank(),
-# panel.grid=element_blank(),
-# panel.border=element_blank())
-
-
+#brewer.pal(n = 9, name = "Spectral")
 
 bp1 <- ggplot(xx_group_1, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -226,7 +213,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp2 <- ggplot(xx_group_2, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -243,7 +231,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp3 <- ggplot(xx_group_3, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -260,7 +249,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp4 <- ggplot(xx_group_4, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -277,7 +267,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp5 <- ggplot(xx_group_5, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -294,7 +285,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp6 <- ggplot(xx_group_6, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -311,7 +303,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp7 <- ggplot(xx_group_7, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -328,7 +321,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp8 <- ggplot(xx_group_8, aes(x=2, y=number_points, fill=speed_category))+geom_bar(width=1, stat="identity")+
   xlim(0.5, 2.5) +coord_polar(theta="y")+ 
@@ -345,7 +339,8 @@ axis.ticks=element_blank(),
 axis.text=element_blank(),
 axis.title=element_blank(),
 panel.grid=element_blank(),
-panel.border=element_blank())
+panel.border=element_blank())+
+  scale_fill_manual(values=c("#D53E4F", "#3288BD"))
 
 bp1
 bp2
