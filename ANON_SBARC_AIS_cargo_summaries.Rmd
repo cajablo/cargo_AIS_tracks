@@ -1,11 +1,11 @@
 ---
-title: "SBARC AIS Cargo Summaries"
+title: "SBARC AIS Cargo Summaries 2"
 output:
-  html_document: default
   html_notebook: default
+  html_document: default
 ---
 
-Some summary data for cargo ships passing through the Santa Barbara Channel from January - March 2018. A single transit or trip consists of the vessel travelling the length of the channel in a designated shipping lane 95% of the time. 
+Some summary data for cargo ships passing through the Santa Barbara Channel from January - March 2018. A single transit or trip consists of the vessel travelling the length of the channel in a designated shipping lane **95%** of the time. 
 
 ```{r setup, include=FALSE, message=FALSE}
 #load libraries
@@ -79,16 +79,17 @@ ggplot(data=cargo_only_summary ) +
 ##Top 8 Shipping Companies
 ```{r echo=FALSE, message=FALSE}
 
+
 shipping_company_summary <- cargo_tanker_summary%>%
   ungroup()%>%
   filter(type_general=="Cargo")%>%
-  group_by(company)%>%
+  group_by(company_x)%>%
   summarize(num_vessels=length(unique(mmsi)), num_transits=length(unique(mmsi_trip)))%>%
   ungroup()%>%
   mutate(fraction_vessels=(num_vessels/sum(num_vessels)), fraction_transits=(num_transits/sum(num_transits)))%>%
   arrange(desc(fraction_transits))%>%
   mutate(num=seq(1:n()))%>%
-  mutate(top_8=as.character(company))
+  mutate(top_8=as.character(company_x))
 
 
 shipping_company_summary$top_8[shipping_company_summary$num > 8] <- "Other"
@@ -98,16 +99,16 @@ shipping_company_summary$top_8[shipping_company_summary$num > 8] <- "Other"
 top_8_categories <- cargo_tanker_summary %>%
   ungroup()%>%
   filter(ship_type< 80)%>%
-  group_by(mmsi, company)%>%
+  group_by(mmsi, company_x)%>%
   summarize(num_transits=length(unique(mmsi_trip)))%>%
-  left_join(shipping_company_summary, by="company")%>%
+  left_join(shipping_company_summary, by="company_x")%>%
   select(mmsi,top_8)
 
 #create a table of the top 8 companies
 shipping_company_top_8 <- shipping_company_summary %>%
   top_n(8, fraction_transits)%>%
   mutate(fraction_vessels=percent(fraction_vessels), fraction_transits=percent(fraction_transits))
-  #select("Company"=company, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)
+  #select("Company"=company_x, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)
 
  shipping_company_top_8 %>%
    mutate(
@@ -116,10 +117,10 @@ shipping_company_top_8 <- shipping_company_summary %>%
      fraction_vessels = cell_spec(fraction_vessels, "html", align="r"), 
      fraction_transits = cell_spec(fraction_transits, "html", align="r"))%>%
    #mutate(blank=" ")%>%
-   select("Company"=company, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)%>%
+   select("Company"=company_x, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)%>%
    kable("html", escape=F) %>%
-   kable_styling(full_width = T)%>%
-   column_spec(1, width="15em")%>%
+   kable_styling(full_width = F)%>%
+   column_spec(1, width="10em")%>%
    column_spec(2, width="8em")%>%
     column_spec(3, width="8em")%>%
    column_spec(4, width="8em")%>%
@@ -186,28 +187,28 @@ xx_group <- xx %>%
 
 #should do all of below in a loop instead
 xx_group_1<- xx_group %>%
-  filter(top_8=="One Line")
+  filter(top_8=="Company 1")
 
 xx_group_2<- xx_group %>%
-  filter(top_8=="Maersk")
+  filter(top_8=="Company 2")
 
 xx_group_3<- xx_group %>%
-  filter(top_8=="CMA-CGM")
+  filter(top_8=="Company 3")
 
 xx_group_4<- xx_group %>%
-  filter(top_8=="MSC")
+  filter(top_8=="Company 4")
 
 xx_group_5<- xx_group %>%
-  filter(top_8=="COSCO")
+  filter(top_8=="Company 5")
 
 xx_group_6<- xx_group %>%
-  filter(top_8=="Hyundai")
+  filter(top_8=="Company 6")
 
 xx_group_7<- xx_group %>%
-  filter(top_8=="Evergreen")
+  filter(top_8=="Company 7")
 
 xx_group_8<- xx_group %>%
-  filter(top_8=="CSCL")
+  filter(top_8=="Company 8")
 
 #brewer.pal(n = 9, name = "Spectral")
 
@@ -217,7 +218,7 @@ bp1 <- ggplot(xx_group_1, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("One Line (146 transits)")+
+ggtitle("Company 1 (146 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -235,7 +236,7 @@ bp2 <- ggplot(xx_group_2, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Maersk (65 transits)")+
+ggtitle("Company 2 (65 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -253,7 +254,7 @@ bp3 <- ggplot(xx_group_3, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("CMA-CGM (64 transits)")+
+ggtitle("Company 3 (64 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -271,7 +272,7 @@ bp4 <- ggplot(xx_group_4, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("MSC (28 transits)")+
+ggtitle("Company 4 (28 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -289,7 +290,7 @@ bp5 <- ggplot(xx_group_5, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("COSCO (26 transits)")+
+ggtitle("Company 5 (26 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -307,7 +308,7 @@ bp6 <- ggplot(xx_group_6, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Hyundai (26 transits)")+
+ggtitle("Company 6 (26 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -325,7 +326,7 @@ bp7 <- ggplot(xx_group_7, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("Evergreen (24 transits)")+
+ggtitle("Company 7 (24 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -343,7 +344,7 @@ bp8 <- ggplot(xx_group_8, aes(x=2, y=number_points, fill=speed_category))+geom_b
   scale_fill_manual(values = c("red", "blue"))+
 labs(x=NULL, y=NULL)+
 labs(fill="") +
-ggtitle("CSL (22 transits)")+
+ggtitle("Company 8 (22 transits)")+
 theme_bw()+
 theme(plot.title = element_text(face="bold",family=c("sans"),size=15),
 legend.text=element_text(size=10),
@@ -366,4 +367,3 @@ bp8
 
 
 ```
-

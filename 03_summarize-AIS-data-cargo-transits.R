@@ -59,9 +59,11 @@ mmsi_trip_remove_df <- data.frame(mmsi_trip_remove, stringsAsFactors=FALSE)
 
 #dataframe of shipping companies
 shipping_companies <- read.csv("cargo_vessels_shipping_company.csv")
+shipping_companies_anon <-readRDS("shipping_companies_anonymous.Rds")
 shipping_companies_edit <- shipping_companies %>%
+  left_join(shipping_companies_anon, by="company")%>%
   mutate(mmsi=as.factor(mmsi))%>%
-  select(mmsi, company)
+  select(mmsi, company, company_x)
   
 
 #create summary table for each trip
@@ -71,7 +73,7 @@ cargo_tankers_lane_transits_summary <- cargo_tankers_lane_transits %>%
   anti_join(mmsi_trip_remove_df, by=c("mmsi_trip"="mmsi_trip_remove"))%>%
   left_join(shipping_companies_edit, by="mmsi")%>%
   #filter((heading < 140 & heading > 75) | (heading > 250 & heading < 320))%>%
-  group_by(mmsi, name, ship_type, mmsi_trip, company) %>%
+  group_by(mmsi, name, ship_type, mmsi_trip, company, company_x) %>%
   #get max/mins for various columns
   summarize(
     min_time = min(datetime_PST),

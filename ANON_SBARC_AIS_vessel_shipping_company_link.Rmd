@@ -1,0 +1,85 @@
+---
+title: "Individual Vessel Info 2"
+output: html_notebook
+---
+
+```{r}
+#load libraries
+library(pacman)
+p_load(dplyr)
+p_load(ggplot2)
+p_load(lubridate)
+p_load(cowplot)
+p_load(gridExtra)
+p_load(RColorBrewer)
+p_load(scales)
+library(knitr)
+library(kableExtra)
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+
+```{r echo=FALSE, message=FALSE}
+cargo_tanker_summary <- readRDS("cargo_tankers_lane_transits_summary.RDS")
+
+cargo_tanker_summary$type_general <- "Cargo"
+cargo_tanker_summary$type_general[cargo_tanker_summary$ship_type>=80]<- "Tanker"
+
+xxxx <- cargo_tanker_summary%>%
+  filter(mmsi=="566651000")%>%
+  ungroup()%>%
+  group_by(mmsi, name, company_x)%>%
+  summarize(num_trips=length(unique(mmsi_trip)), avg_time=mean(time_diff), max_time=max(time_diff), min_time=min(time_diff), max_speed=max(max_speed))%>%
+   mutate(company_x=as.character(company_x))%>%
+  select(name, mmsi, company_x, num_trips, avg_time, max_time, min_time, max_speed)
+
+yy <- xxxx %>%
+  select("Vessel Name" =name, "Vessel MMSI"=mmsi, "Vessel Company"= company_x, "Number of Transits"=num_trips, "Average Transit Time (hrs)"=avg_time, "Max Transit Time (hrs)"=max_time, "Min Transit Time (hrs)"=min_time, "Max speed observed (kn)" =max_speed)
+
+
+company_1 <- xxxx[1,3]
+
+kable(yy, "html") %>%
+  kable_styling(full_width = T)
+```
+
+
+
+
+```{r echo=FALSE, message=FALSE}
+one_company <- cargo_tanker_summary%>%
+  ungroup()%>%
+  filter(type_general=="Cargo")%>%
+  group_by(company_x)%>%
+  summarize(num_vessels=length(unique(mmsi)), num_transits=length(unique(mmsi_trip)))%>%
+  ungroup()%>%
+  mutate(fraction_vessels=percent(num_vessels/sum(num_vessels)), fraction_transits=percent(num_transits/sum(num_transits)))
+
+one_company_x <- subset(one_company, company_x %in% company_1)
+#one_company_y <- one_company_x %>%
+#  select("Company"=company, "Number of Vessels"=num_vessels, "Number of Transits"=num_transits, "Fraction of Total Vessels" = #fraction_vessels, "Fraction of Total Transits" = fraction_transits)
+
+ #kable(one_company_y, "html") %>%
+ #  kable_styling(full_width = F)
+ 
+ 
+  one_company_x %>%
+   mutate(
+     num_vessels=cell_spec(num_vessels, align="center"),
+     num_transits=cell_spec(num_transits, align="center"),
+     fraction_vessels = cell_spec(fraction_vessels, "html", align="r"), 
+     fraction_transits = cell_spec(fraction_transits, "html", align="r"))%>%
+   #mutate(blank=" ")%>%
+   select("Company"=company_x, "Number of Vessels" = num_vessels, "Number of Tranists"= num_transits, "Fraction of Total Vessels"= fraction_vessels, "Fraction of Total Transits" = fraction_transits)%>%
+   kable("html", escape=F) %>%
+   kable_styling(full_width = T)%>%
+   column_spec(1, width="15em")%>%
+   column_spec(2, width="8em")%>%
+    column_spec(3, width="8em")%>%
+   column_spec(4, width="8em")%>%
+   column_spec(5, width="8em")
+ 
+```
