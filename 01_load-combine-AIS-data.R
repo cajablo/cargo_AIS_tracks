@@ -1,9 +1,12 @@
 #01_load-combine-AIS-data
 ##This script loads and combines the hourly AIS data into one big data file that is then saved as a .Rdata file
 
+#path where folder with AIS data is
+AIS_file_location <- "./AIS_data_20180602"
+
 # get a list of all of the files in the SBARC data
 AIS_files <-
-  list.files(path = "./AIS_data_201804",
+  list.files(path = AIS_file_location,
              pattern = "\\.txt$",
              full.names = TRUE)
 
@@ -29,7 +32,7 @@ for (i in 1:length(AIS_files2)) {
 data_rbind <- do.call("rbind", AIS_files2)
 
 #save this formatted, binded dataframe as a R data file so we don't have to run this everytime
-saveRDS(data_rbind, file="01_raw_SBARC_AIS_data_201804-combined.Rds")
+saveRDS(data_rbind, file="01_raw_SBARC_AIS_data_20180602-combined.Rds")
 
 
 

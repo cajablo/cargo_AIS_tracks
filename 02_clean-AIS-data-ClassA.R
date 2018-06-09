@@ -1,10 +1,9 @@
 #02_clean-AIS-data-ClassA
 
-#load packages
-library(stringr)
-library(dplyr)
 #load libraries
 library(pacman)
+p_load(stringr)
+p_load(dplyr)
 p_load(ggplot2)
 p_load(sp)
 p_load(rgdal)
@@ -12,8 +11,8 @@ p_load(maps)
 p_load(maptools)
 p_load(rgeos)
 
-#load combined raw SBARC data
-readRDS("01_raw_SBARC_AIS_data_201804-combined.Rds")
+#load combined raw SBARC data (don't need to do this if just used  )
+data_rbind <- readRDS("01_raw_SBARC_AIS_data_20180602-combined.Rds")
 
 ##Clean Jan 2018 data
 # 1. remove extra characters from the date column (which is based on the file name) to just get the date
@@ -63,7 +62,9 @@ ClassA <- ClassA_loc[,-c(6, 7, 17:29)]
 #Save Raw Class A data------------------
 #Option 1
 #either save this formatted, binded dataframe as a R rds file so we don't have to run this everytime indivdually or bind with previous data
-saveRDS(ClassA, file="01_SBARC-AIS_201802-03_ClassA.Rds")
+saveRDS(ClassA, file="01_raw_SBARC_AIS_data_20180602_ClassA.Rds")
+
+
 SBARC_AIS_201802_03_ClassA <- readRDS("01_SBARC-AIS_201802-03_ClassA.Rds")
 
 #Option 2
